@@ -135,7 +135,12 @@ def recordings():
     uploaded = [item for item in Camera.query.order_by(Camera.created_at.desc()).all()
                 if item.stream_url.startswith(str(app.config["UPLOAD_DIR"]))
                 or item.stream_url.lower().startswith(("http://", "https://", "rtsp://", "rtmp://"))]
-    return render_template("recordings.html", recordings=uploaded, selected_id=request.args.get("camera_id", type=int))
+    return render_template(
+        "recordings.html", recordings=uploaded,
+        selected_id=request.args.get("camera_id", type=int),
+        max_upload_mb=app.config["MAX_CONTENT_LENGTH"] // (1024 * 1024),
+        serverless=app.config.get("SERVERLESS", False),
+    )
 
 
 @app.post("/cameras/<int:camera_id>/toggle")
@@ -257,7 +262,15 @@ def video(camera_id): return Response(stream(camera_id),mimetype="multipart/x-mi
 
 
 @app.route("/health")
-def health(): return jsonify(status="ok",yolo=app.config["ENABLE_YOLO"])
+def health():
+    return jsonify(status="ok", yolo=app.config["ENABLE_YOLO"], serverless=app.config.get("SERVERLESS", False))
+
+
+@app.errorhandler(413)
+def upload_too_large(_error):
+    limit = app.config["MAX_CONTENT_LENGTH"] // (1024 * 1024)
+    flash(f"Upload exceeds the {limit} MB limit for this deployment.", "danger")
+    return redirect(url_for("recordings")), 413
 
 
 def initialise():

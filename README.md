@@ -358,6 +358,29 @@ The included Flask server is a development server. A production deployment shoul
 - Monitoring, structured logs and audit history
 - Domain-specific model validation and version control
 
+## Vercel deployment
+
+The repository includes `vercel.json` and a Python 3.12 runtime pin. Flask is exposed through the `app` WSGI variable and is automatically packaged as one Vercel Function.
+
+Vercel mode automatically stores its temporary SQLite database, uploads and evidence under `/tmp/sentinel-ai` because the deployed project filesystem is read-only. This makes the dashboard suitable as an online demonstration, but `/tmp` is ephemeral and must not be treated as persistent evidence storage.
+
+Deploy by importing the GitHub repository into Vercel or with the Vercel CLI:
+
+```bash
+vercel
+vercel --prod
+```
+
+Configure a strong `SECRET_KEY` in the Vercel project environment settings.
+
+Important serverless limitations:
+
+- Function request and response bodies are limited to approximately 4.5 MB.
+- The application therefore displays a 4 MB upload limit on Vercel while retaining 1000 MB locally.
+- Function storage under `/tmp` is temporary and may disappear between invocations.
+- Long-running CCTV streams and durable evidence require persistent infrastructure rather than a serverless Function.
+- For production, connect `DATABASE_URL` to PostgreSQL and move uploads/evidence to object storage with direct browser uploads.
+
 ## Troubleshooting
 
 ### Port already in use

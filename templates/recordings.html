@@ -7,6 +7,7 @@
     <span class="eyebrow">UPLOAD FOOTAGE</span>
     <h2>Analyze recorded video</h2>
     <p class="muted">Upload existing CCTV footage and run it through the same analytics pipeline as a live camera.</p>
+    {% if serverless %}<div class="serverless-note"><b>Vercel demo mode</b><span>Function uploads are limited to 4 MB and temporary files are not persistent. Use the local application for large video analysis.</span></div>{% endif %}
     <form method="post" enctype="multipart/form-data" id="recording-upload">
       <label>Source type<select name="source_type" id="source-type"><option value="video">Upload recorded video</option><option value="url">Video or stream URL</option><option value="photo">Upload photo</option></select></label>
       <label>Recording name<input name="name" placeholder="Parking area · 6 August"></label>
@@ -19,7 +20,7 @@
         <input type="file" name="media" accept="video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm,.m4v" required>
         <span class="upload-icon">⇧</span>
         <b id="file-prompt">Choose or drop a recorded video</b>
-        <small id="file-types">MP4, MOV, AVI, MKV, M4V or WebM · maximum 1000 MB</small>
+        <small id="file-types">MP4, MOV, AVI, MKV, M4V or WebM · maximum {{max_upload_mb}} MB</small>
         <em id="selected-file">No file selected</em>
       </label>
       <button class="primary" type="submit" id="media-submit">Upload video for analysis →</button>
@@ -53,4 +54,4 @@
   {% for name in ['Person tracking','Intrusion','Loitering','Crowd','Rapid interaction','Abandoned object','Weapon'] %}<span>✓ {{name}}</span>{% endfor %}
 </section>
 {% endblock %}
-{% block scripts %}<script>Sentinel.recordings();</script>{% endblock %}
+{% block scripts %}<script>window.SENTINEL_UPLOAD_LIMIT={{max_upload_mb}}; Sentinel.recordings();</script>{% endblock %}
