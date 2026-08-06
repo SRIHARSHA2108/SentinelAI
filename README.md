@@ -360,7 +360,7 @@ The included Flask server is a development server. A production deployment shoul
 
 ## Vercel deployment
 
-The repository includes `vercel.json` and a Python 3.12 runtime pin. Flask is exposed through the `app` WSGI variable and is automatically packaged as one Vercel Function.
+The repository includes a minimal `vercel.json` and a Python 3.12 runtime pin. Flask is exposed through the root-level `app` WSGI variable and is automatically packaged as one Vercel Function. No explicit `functions` pattern is used because those patterns apply to files inside Vercel's `api/` directory.
 
 Vercel mode automatically stores its temporary SQLite database, uploads and evidence under `/tmp/sentinel-ai` because the deployed project filesystem is read-only. This makes the dashboard suitable as an online demonstration, but `/tmp` is ephemeral and must not be treated as persistent evidence storage.
 
