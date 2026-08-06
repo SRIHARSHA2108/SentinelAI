@@ -7,6 +7,7 @@ import time
 import uuid
 
 import cv2
+import numpy as np
 from flask import Flask, Response, flash, jsonify, redirect, render_template, request, send_from_directory, session, url_for
 from werkzeug.utils import secure_filename
 
@@ -188,6 +189,42 @@ def api_incidents():
     after = request.args.get("after", type=int, default=0)
     items = Incident.query.filter(Incident.id > after).order_by(Incident.id.desc()).limit(30).all()
     return jsonify([serial_incident(i) for i in items])
+
+
+@app.post("/api/analyze-frame/<int:camera_id>")
+@login_required
+def analyze_browser_frame(camera_id):
+    """Analyze a JPEG captured by getUserMedia in a serverless browser client."""
+    camera = db.get_or_404(Camera, camera_id)
+    upload = request.files.get("frame")
+    if not upload:
+        return jsonify(error="Missing camera frame"), 400
+    payload = upload.read(2 * 1024 * 1024 + 1)
+    if len(payload) > 2 * 1024 * 1024:
+        return jsonify(error="Camera frame exceeds 2 MB"), 413
+    frame = cv2.imdecode(np.frombuffer(payload, dtype=np.uint8), cv2.IMREAD_COLOR)
+    if frame is None:
+        return jsonify(error="Invalid camera frame"), 400
+    if frame.shape[1] > 960:
+        scale = 960 / frame.shape[1]
+        frame = cv2.resize(frame, None, fx=scale, fy=scale)
+    engine = engines.setdefault(
+        f"browser-{camera_id}",
+        AnalyticsEngine(app.config["ENABLE_YOLO"], app.config["YOLO_MODEL"]),
+    )
+    zones_data = [{"name": z.name, "points": z.polygon_coordinates, "active": z.active, "restricted": True} for z in camera.zones]
+    detections = engine.detect(frame)
+    events = engine.analyse(frame, detections, zones_data)
+    rendered = engine.annotate(frame, detections, events, zones_data)
+    for event in events:
+        save_event(camera, rendered, event)
+    ok, encoded = cv2.imencode(".jpg", rendered, [cv2.IMWRITE_JPEG_QUALITY, 76])
+    if not ok:
+        return jsonify(error="Unable to encode analyzed frame"), 500
+    response = Response(encoded.tobytes(), mimetype="image/jpeg")
+    response.headers["X-Detected-Events"] = ",".join(event["type"] for event in events)
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 @app.post("/api/alerts/read")

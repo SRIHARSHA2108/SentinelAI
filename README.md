@@ -381,6 +381,10 @@ Important serverless limitations:
 - Long-running CCTV streams and durable evidence require persistent infrastructure rather than a serverless Function.
 - For production, connect `DATABASE_URL` to PostgreSQL and move uploads/evidence to object storage with direct browser uploads.
 
+### Camera access on Vercel
+
+Vercel's remote Function cannot access device `0` because it runs in a data center without access to the visitor's webcam. In serverless mode, **Start feed** uses the browser `getUserMedia` API instead. The browser requests camera permission, captures compressed frames locally, sends them to `/api/analyze-frame/<camera_id>`, and displays the annotated JPEG response. Camera access requires HTTPS and explicit user permission.
+
 ## Troubleshooting
 
 ### Port already in use
