@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Evidence Album · Sentinel AI{% endblock %}
+{% block heading %}Incident evidence album{% endblock %}
+{% block content %}
+<section class="panel evidence-album">
+  <div class="panel-head album-head">
+    <div><span class="eyebrow">EVIDENCE & RESPONSE</span><h2>Detected-event gallery</h2><small>{{incidents|length}} evidence item{{'' if incidents|length == 1 else 's'}}</small></div>
+    <div class="album-actions">
+      <div class="filters"><a href="{{url_for('incidents')}}">All</a><a href="?status=open">Open</a><a href="?status=reviewing">Reviewing</a><a href="?status=resolved">Resolved</a></div>
+      <button class="view-button active" type="button" data-album-view="grid" title="Grid view">▦</button>
+      <button class="view-button" type="button" data-album-view="large" title="Large tiles">▤</button>
+    </div>
+  </div>
+
+  <div class="incident-grid album-grid" id="incident-album">
+    {% for i in incidents %}
+    <article class="incident-card" data-album-item data-title="{{i.incident_type|replace('_',' ')|title}}" data-camera="{{i.camera.name}}" data-time="{{i.detected_time.strftime('%d/%m/%Y · %H:%M:%S')}}" data-confidence="{{(i.confidence*100)|int}}%" data-description="{{i.description or 'No description'}}" data-status="{{i.status|replace('_',' ')|title}}" data-image="{{url_for('evidence',filename=i.image_path) if i.image_path else ''}}">
+      <button class="evidence album-open" type="button" aria-label="Open {{i.incident_type|replace('_',' ')}} evidence">
+        {% if i.image_path %}<img src="{{url_for('evidence',filename=i.image_path)}}" loading="lazy" alt="{{i.incident_type|replace('_',' ')}} evidence from {{i.camera.name}}">{% else %}<span>NO PREVIEW</span>{% endif %}
+        <span class="event-label {{i.incident_type}}">{{i.incident_type|replace('_',' ')}}</span>
+        <span class="album-hover"><b>⌕</b> View evidence</span>
+      </button>
+      <div class="incident-body">
+        <div><h3>{{i.incident_type|replace('_',' ')|title}}</h3><span class="confidence">{{(i.confidence*100)|int}}%</span></div>
+        <p>{{i.description}}</p><small>{{i.camera.name}} · {{i.detected_time.strftime('%d %b %Y, %H:%M:%S')}}</small>
+        <form action="{{url_for('incident_status',incident_id=i.id)}}" method="post"><select name="status"><option {{'selected' if i.status=='open'}}>open</option><option {{'selected' if i.status=='reviewing'}}>reviewing</option><option {{'selected' if i.status=='resolved'}}>resolved</option><option value="false_positive" {{'selected' if i.status=='false_positive'}}>false positive</option></select><button class="secondary">Update</button></form>
+      </div>
+    </article>
+    {% else %}<div class="empty">No incidents match this album filter.</div>{% endfor %}
+  </div>
+</section>
+
+<div class="evidence-lightbox" id="evidence-lightbox" hidden>
+  <div class="lightbox-backdrop" data-close-album></div>
+  <section class="lightbox-dialog" role="dialog" aria-modal="true" aria-label="Evidence preview">
+    <header class="lightbox-top"><div><span class="eyebrow">INCIDENT EVIDENCE</span><h2 id="lightbox-title">Evidence</h2></div><div class="lightbox-tools"><button type="button" id="lightbox-zoom">＋ Zoom</button><a id="lightbox-download" download>⇩ Download</a><button type="button" data-close-album>×</button></div></header>
+    <div class="lightbox-stage"><button class="album-nav previous" type="button" id="album-previous">‹</button><div class="lightbox-image-wrap" id="lightbox-image-wrap"><img id="lightbox-image" alt="Incident evidence"></div><button class="album-nav next" type="button" id="album-next">›</button></div>
+    <footer class="lightbox-info"><div><span>CAMERA</span><b id="lightbox-camera"></b></div><div><span>DETECTED</span><b id="lightbox-time"></b></div><div><span>CONFIDENCE</span><b id="lightbox-confidence"></b></div><div><span>STATUS</span><b id="lightbox-status"></b></div><p id="lightbox-description"></p></footer>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}<script>Sentinel.incidents();</script>{% endblock %}

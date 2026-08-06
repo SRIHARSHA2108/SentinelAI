@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Recorded Analysis · Sentinel AI{% endblock %}
+{% block heading %}Recorded video analysis{% endblock %}
+{% block content %}
+<div class="recording-layout">
+  <section class="panel upload-panel">
+    <span class="eyebrow">UPLOAD FOOTAGE</span>
+    <h2>Analyze recorded video</h2>
+    <p class="muted">Upload existing CCTV footage and run it through the same analytics pipeline as a live camera.</p>
+    <form method="post" enctype="multipart/form-data" id="recording-upload">
+      <label>Source type<select name="source_type" id="source-type"><option value="video">Upload recorded video</option><option value="url">Video or stream URL</option><option value="photo">Upload photo</option></select></label>
+      <label>Recording name<input name="name" placeholder="Parking area · 6 August"></label>
+      <label>Location<input name="location" placeholder="Building A · Parking"></label>
+      <label class="url-source" id="url-source">
+        Direct media URL<input type="url" name="media_url" placeholder="https://server/video.mp4 or rtsp://camera/stream">
+        <small class="hint">Use a direct video file or stream URL, not a YouTube or webpage link.</small>
+      </label>
+      <label class="file-drop" id="file-drop">
+        <input type="file" name="media" accept="video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm,.m4v" required>
+        <span class="upload-icon">⇧</span>
+        <b id="file-prompt">Choose or drop a recorded video</b>
+        <small id="file-types">MP4, MOV, AVI, MKV, M4V or WebM · maximum 1000 MB</small>
+        <em id="selected-file">No file selected</em>
+      </label>
+      <button class="primary" type="submit" id="media-submit">Upload video for analysis →</button>
+    </form>
+  </section>
+
+  <section class="panel recording-player">
+    <div class="panel-head"><div><span class="eyebrow">AI REVIEW STATION</span><h2>Recorded footage</h2></div><span class="analysis-ready">● ANALYTICS READY</span></div>
+    {% if recordings %}
+      <div class="recording-list">
+      {% for video in recordings %}
+        <article class="recording-item {{'selected' if selected_id==video.id}}">
+          <div><b>{{video.name}}</b><small>{{video.location}} · Uploaded {{video.created_at.strftime('%d/%m/%Y %H:%M')}}</small></div>
+          <button class="secondary" data-analyze-recording="{{video.id}}">Analyze source</button>
+        </article>
+      {% endfor %}
+      </div>
+      <div class="recording-screen" id="recording-screen">
+        <img id="recording-feed" alt="Recorded video analysis">
+        <div class="recording-empty"><span>▶</span><b>Select “Analyze recording”</b><small>Detections, tracking boxes, behavior alerts, and evidence capture will appear here.</small></div>
+        <span class="recorded-badge">RECORDED ANALYSIS</span>
+        <button class="fullscreen-recording" id="fullscreen-recording" type="button" title="Open full screen">⛶ Full screen</button>
+      </div>
+    {% else %}
+      <div class="empty"><span>▶</span><b>No recorded footage uploaded</b><small>Your analyzed recordings will appear here.</small></div>
+    {% endif %}
+  </section>
+</div>
+<section class="panel recording-capabilities">
+  <span class="eyebrow">ACTIVE DETECTORS</span>
+  {% for name in ['Person tracking','Intrusion','Loitering','Crowd','Rapid interaction','Abandoned object','Weapon'] %}<span>✓ {{name}}</span>{% endfor %}
+</section>
+{% endblock %}
+{% block scripts %}<script>Sentinel.recordings();</script>{% endblock %}

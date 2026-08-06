@@ -1,0 +1,8 @@
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+opencv-python==4.10.0.84
+numpy==1.26.4
+Werkzeug==3.0.3
+# Optional production AI backend:
+# ultralytics==8.3.0
+

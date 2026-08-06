@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sign in · Sentinel AI</title>
+  <link rel="stylesheet" href="{{url_for('static',filename='style.css')}}">
+  <link rel="stylesheet" href="{{url_for('static',filename='responsive.css')}}">
+</head>
+<body class="login-page">
+  <section class="login-visual ad-carousel" aria-label="Sentinel AI features">
+    <img class="ad-project-image" src="{{url_for('static', filename='images/cctv-cinematic-background.png', v=1)}}" alt="Cinematic CCTV-monitored building entrance">
+    <div class="ad-ambient"></div>
+    <div class="ad-scan"></div>
+    <div class="grid-lines"></div>
+    <div class="cinema-bars" aria-hidden="true"></div>
+    <div class="motion-stage" aria-hidden="true">
+      <div class="walking-track"><img class="walking-person" src="{{url_for('static', filename='images/walking-person.png', v=2)}}" alt=""></div>
+      <div class="tracking-box"><span class="track-label">PERSON · ID 07</span><i></i><b>MOTION DETECTED</b></div>
+      <div class="restricted-zone"><span>RESTRICTED ZONE</span></div>
+    </div>
+    <div class="recording-hud"><span class="record-dot"></span> LIVE ANALYSIS <b>CAM 01</b><time id="cctv-datetime" aria-label="Current date and time"></time></div>
+
+    <article class="login-copy ad-slide active">
+      <span class="tag">INTELLIGENT CCTV SURVEILLANCE</span>
+      <h1>Detect the incident.<br><em>Track the person.</em></h1>
+      <p>Our AI-powered CCTV system analyzes live camera feeds to identify suspicious activity, follow people through a scene, and help security teams respond faster.</p>
+      <div class="capabilities"><span>Crime detection</span><span>Person tracking</span><span>Live CCTV analysis</span></div>
+    </article>
+
+    <article class="login-copy ad-slide">
+      <span class="tag">BEHAVIOR & EVENT DETECTION</span>
+      <h1>Unusual behavior.<br><em>Immediate awareness.</em></h1>
+      <p>The system screens camera footage for intrusion, loitering, crowd formation, abandoned objects, weapons, and rapid interactions requiring operator review.</p>
+      <div class="capabilities"><span>Intrusion</span><span>Loitering</span><span>Violence screening</span><span>Weapon alerts</span></div>
+    </article>
+
+    <article class="login-copy ad-slide">
+      <span class="tag">ALERTS & DIGITAL EVIDENCE</span>
+      <h1>From detection<br><em>to documented evidence.</em></h1>
+      <p>When suspicious activity is detected, the project captures the frame, creates an incident, stores evidence, and sends the event to the monitoring dashboard.</p>
+      <div class="capabilities"><span>Instant alerts</span><span>Evidence capture</span><span>Incident reports</span><span>Human verification</span></div>
+    </article>
+
+    <div class="ad-signature"><span class="signal"></span> CRIME DETECTION · PERSON TRACKING · BEHAVIOR ANALYSIS</div>
+  </section>
+
+  <main class="login-card">
+    <div class="brand dark"><span class="brandmark">S</span><span>Sentinel<span class="accent">AI</span><small>Intelligent Surveillance</small></span></div>
+    <div><span class="eyebrow">SECURE ACCESS</span><h2>Welcome back</h2><p class="muted">Sign in to enter the control center.</p></div>
+    {% with messages=get_flashed_messages(with_categories=true) %}{% for c,m in messages %}<div class="flash {{c}}">{{m}}</div>{% endfor %}{% endwith %}
+    <form method="post">
+      <label>Email address<input type="email" name="email" value="admin@cctv.local" required></label>
+      <label>Password<input type="password" name="password" value="admin123" required></label>
+      <button class="primary" type="submit">Enter control center →</button>
+    </form>
+    <p class="demo-note">Demo access: admin@cctv.local / admin123</p>
+  </main>
+
+  <script>
+    (() => {
+      const slides = [...document.querySelectorAll('.ad-slide')];
+      const clock = document.getElementById('cctv-datetime');
+      const updateClock = () => {
+        if (!clock) return;
+        const now = new Date();
+        const date = new Intl.DateTimeFormat('en-GB', {day:'2-digit', month:'2-digit', year:'numeric'}).format(now);
+        const time = new Intl.DateTimeFormat('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false}).format(now);
+        clock.textContent = `${date}  ${time}`;
+        clock.dateTime = now.toISOString();
+      };
+      updateClock();
+      window.setInterval(updateClock, 1000);
+      if (slides.length < 2) return;
+      let current = 0;
+      window.setInterval(() => {
+        slides[current].classList.remove('active');
+        current = (current + 1) % slides.length;
+        slides[current].classList.add('active');
+      }, 20000);
+    })();
+  </script>
+</body>
+</html>
