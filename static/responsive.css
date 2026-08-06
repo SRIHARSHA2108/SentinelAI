@@ -45,3 +45,4 @@ img,video{max-width:100%}button,input,select,a{-webkit-tap-highlight-color:trans
 }
 
 @media(hover:none){.album-hover{display:none}.primary,.secondary,.view-button,.fullscreen-recording{min-height:40px}}
+@media(max-width:760px){.mobile-camera-controls{bottom:9px}.mobile-camera-controls button{min-height:38px;padding-inline:13px;font-size:10px}.feed-screen.playing .live-badge{top:9px;left:9px}.feed-screen.playing .ai-badge{top:9px;right:9px}}

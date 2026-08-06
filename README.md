@@ -385,6 +385,8 @@ Important serverless limitations:
 
 Vercel's remote Function cannot access device `0` because it runs in a data center without access to the visitor's webcam. In serverless mode, **Start feed** uses the browser `getUserMedia` API instead. The browser requests camera permission, captures compressed frames locally, sends them to `/api/analyze-frame/<camera_id>`, and displays the annotated JPEG response. Camera access requires HTTPS and explicit user permission.
 
+The browser camera bridge supports Android Chrome and iPhone Safari. It requests the rear camera by default, provides **Flip camera** and **Stop** controls, uses `playsinline` for iOS, and falls back to the device's default camera when an exact rear/front selection is unavailable.
+
 ## Troubleshooting
 
 ### Port already in use
